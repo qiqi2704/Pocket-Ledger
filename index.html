@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Pocket Ledger" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Pocket Ledger</title>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Pocket Ledger <span class="version">v0.3</span></div>
+        <h1 id="screenTitle">Overview</h1>
+      </div>
+      <button class="iconbtn" id="backupBtn" aria-label="Backup">⇩</button>
+    </header>
+
+    <main>
+      <section id="overview" class="screen active">
+        <div class="card hero">
+          <div class="row spread balanceLabelRow">
+            <div class="muted">Net balance</div>
+            <button class="eyeBtn" id="toggleBalanceBtn" aria-label="Hide balance">◉</button>
+          </div>
+          <div class="balance" id="netBalance">RM 0.00</div>
+          <div class="row spread smallgap overviewMetrics">
+            <button class="metricButton" id="openIncomeOverviewBtn"><span class="muted">Income</span><div class="positive" id="monthIncome">RM 0.00</div><small>View monthly overview ›</small></button>
+            <button class="metricButton right" id="openExpenseOverviewBtn"><span class="muted">Expenses</span><div class="negative" id="monthExpense">RM 0.00</div><small>View monthly overview ›</small></button>
+          </div>
+        </div>
+
+        <div class="quickGrid oneCol">
+          <button class="quickCard" id="openDebtBtn"><span class="quickIcon">⌂</span><span><strong>Debt</strong><small>Loans & repayments</small></span></button>
+        </div>
+
+        <div class="sectionHead"><h2>This month</h2><span id="monthLabel" class="muted"></span></div>
+        <div id="categorySummary" class="stack"></div>
+
+        <div class="sectionHead"><h2>Recent transactions</h2></div>
+        <div id="recentList" class="stack"></div>
+      </section>
+
+      <section id="accounts" class="screen">
+        <div class="sectionHead"><h2>Accounts</h2><button class="primary small" id="addAccountBtn">+ Add</button></div>
+        <div id="accountList" class="stack"></div>
+        <p class="footnote">Tap an account to edit its details or correct its current balance. A balance correction keeps your transaction history intact.</p>
+      </section>
+
+      <section id="add" class="screen">
+        <div class="segmented" id="txTypeSeg">
+          <button data-type="expense" class="active">Expense</button>
+          <button data-type="income">Income</button>
+          <button data-type="transfer">Transfer</button>
+        </div>
+        <form id="txForm" class="form card">
+          <label>Amount<input id="txAmount" type="number" step="0.01" min="0.01" required /></label>
+          <label>Account<select id="txAccount"></select></label>
+          <label id="toAccountWrap" class="hidden">To account<select id="txToAccount"></select></label>
+          <label id="categoryWrap">Category<select id="txCategory"></select></label>
+          <label>Date<input id="txDate" type="date" required /></label>
+          <label>Note<input id="txNote" type="text" placeholder="Optional" /></label>
+          <button class="primary full" type="submit">Save transaction</button>
+        </form>
+      </section>
+
+      <section id="travel" class="screen">
+        <div class="sectionHead"><h2>Trips</h2><button class="primary small" id="addTripBtn">+ Trip</button></div>
+        <div id="tripList" class="stack"></div>
+        <div id="tripDetail" class="hidden"></div>
+      </section>
+
+      <section id="settings" class="screen">
+        <div class="card form">
+          <label>Home currency
+            <select id="homeCurrency">
+              <option>MYR</option><option>USD</option><option>SGD</option><option>JPY</option><option>EUR</option><option>GBP</option><option>AUD</option><option>THB</option><option>CNY</option><option>KRW</option>
+            </select>
+          </label>
+          <button class="secondary full" id="exportBtn" type="button">Export backup</button>
+          <label class="fileLabel">Restore backup<input id="importInput" type="file" accept="application/json" /></label>
+          <button class="danger full" id="resetBtn" type="button">Erase all local data</button>
+        </div>
+        <p class="footnote">Your finance data is stored only in this browser on this device. Export backups regularly.</p>
+      </section>
+
+      <section id="insights" class="screen specialScreen">
+        <div class="sectionHead specialHead"><button class="backBtn" data-back>‹</button><h2 id="reportTitle">Expense overview</h2><span></span></div>
+        <div class="segmented reportModeSeg" id="reportModeSeg">
+          <button data-mode="expense" class="active">Expenses</button>
+          <button data-mode="income">Income</button>
+        </div>
+        <div class="card form compactForm">
+          <label>Month<input id="reportMonth" type="month" /></label>
+        </div>
+        <div class="summaryGrid">
+          <div class="miniSummary"><span id="selectedTotalLabel">Expenses</span><strong id="selectedTotal">RM 0.00</strong></div>
+          <div class="miniSummary"><span>Other side</span><strong id="otherTotal">RM 0.00</strong></div>
+          <div class="miniSummary wide"><span>Net</span><strong id="reportNet">RM 0.00</strong></div>
+        </div>
+        <div class="sectionHead"><h2 id="pieHeading">Expenses by category</h2></div>
+        <div class="card chartCard">
+          <div id="pieChart" class="pieChart"><div class="pieCenter"><strong id="pieTotal">RM 0</strong><span>Total</span></div></div>
+          <div id="pieLegend" class="pieLegend"></div>
+        </div>
+        <div class="sectionHead"><h2 id="trendHeading">6-month expense trend</h2></div>
+        <div class="card chartCard"><div id="trendChart" class="trendChart"></div></div>
+        <div class="sectionHead"><h2 id="breakdownHeading">Category details</h2></div>
+        <div id="reportBreakdown" class="stack"></div>
+      </section>
+
+      <section id="debt" class="screen specialScreen">
+        <div class="sectionHead specialHead"><button class="backBtn" data-back>‹</button><h2>Debt</h2><button class="primary small" id="addDebtBtn">+ Add</button></div>
+        <div class="card debtSummary">
+          <div class="muted">Recorded outstanding</div>
+          <div class="balance darkBalance" id="totalDebt">RM 0.00</div>
+          <div class="sub">Estimates only — your lender's statement remains authoritative.</div>
+        </div>
+        <div class="sectionHead"><h2>Loans & financing</h2></div>
+        <div id="debtList" class="stack"></div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button data-screen="overview" class="active"><span>⌂</span>Home</button>
+      <button data-screen="accounts"><span>◫</span>Accounts</button>
+      <button data-screen="add" class="fabtab"><span>＋</span>Add</button>
+      <button data-screen="travel"><span>✈</span>Travel</button>
+      <button data-screen="settings"><span>⚙</span>Settings</button>
+    </nav>
+  </div>
+
+  <dialog id="accountDialog">
+    <form method="dialog" id="accountForm" class="form">
+      <h3 id="accountDialogTitle">Add account</h3>
+      <input type="hidden" id="accountEditId" />
+      <label>Name<input id="accountName" required placeholder="Maybank, Cash, TNG..." /></label>
+      <label>Type<select id="accountType"><option>Bank</option><option>E-wallet</option><option>Cash</option><option>Pay Later / BNPL</option><option>Credit card</option><option>Other</option></select></label>
+      <label>Currency<select id="accountCurrency"><option>MYR</option><option>USD</option><option>SGD</option><option>JPY</option><option>EUR</option><option>GBP</option><option>AUD</option><option>THB</option><option>CNY</option><option>KRW</option></select></label>
+      <label id="openingBalanceWrap">Opening balance<input id="accountOpening" type="number" step="0.01" value="0" /></label>
+      <label id="currentBalanceWrap" class="hidden">Set current balance<input id="accountCurrent" type="number" step="0.01" /></label>
+      <div id="accountBalanceHint" class="hint hidden"></div>
+      <div class="row"><button value="cancel" class="secondary">Cancel</button><button id="saveAccountBtn" value="default" class="primary">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="tripDialog">
+    <form method="dialog" id="tripForm" class="form">
+      <h3>New trip</h3>
+      <label>Trip name<input id="tripName" required placeholder="Japan 2027" /></label>
+      <label>Currency<select id="tripCurrency"><option>MYR</option><option>JPY</option><option>USD</option><option>SGD</option><option>EUR</option><option>THB</option><option>CNY</option><option>KRW</option></select></label>
+      <label>Partners (comma separated)<input id="tripPartners" placeholder="Me, Alice, Ben" /></label>
+      <div class="row"><button value="cancel" class="secondary">Cancel</button><button id="saveTripBtn" value="default" class="primary">Create</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="tripExpenseDialog">
+    <form method="dialog" id="tripExpenseForm" class="form">
+      <h3>Add trip expense</h3>
+      <input type="hidden" id="tripExpenseTripId" />
+      <label>Description<input id="tripExpenseDesc" required placeholder="Dinner" /></label>
+      <label>Amount<input id="tripExpenseAmount" type="number" step="0.01" min="0.01" required /></label>
+      <label>Category<select id="tripExpenseCategory"><option>Hotel</option><option>Food</option><option>Transport</option><option>Shopping</option><option>Attractions</option><option>Other</option></select></label>
+      <label>Paid by<select id="tripExpensePaidBy"></select></label>
+      <fieldset><legend>Shared by</legend><div id="tripExpenseSharedBy" class="checks"></div></fieldset>
+      <div class="row"><button value="cancel" class="secondary">Cancel</button><button id="saveTripExpenseBtn" value="default" class="primary">Add</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="debtDialog">
+    <form method="dialog" id="debtForm" class="form">
+      <h3 id="debtDialogTitle">Add debt</h3>
+      <input type="hidden" id="debtEditId" />
+      <label>Name<input id="debtName" required placeholder="Housing loan, Myvi, PTPTN..." /></label>
+      <label>Type<select id="debtType">
+        <option value="housing">Housing loan — reducing balance</option>
+        <option value="carReducing">Car financing — reducing balance</option>
+        <option value="carFlat">Car loan — legacy flat-rate estimate</option>
+        <option value="ptptn">PTPTN / Ujrah estimate</option>
+        <option value="personal">Personal loan — reducing balance</option>
+        <option value="custom">Custom debt</option>
+      </select></label>
+      <label>Currency<select id="debtCurrency"><option>MYR</option><option>USD</option><option>SGD</option><option>JPY</option><option>EUR</option><option>GBP</option><option>AUD</option><option>THB</option><option>CNY</option><option>KRW</option></select></label>
+      <label id="debtPrincipalWrap">Starting principal / amount owed<input id="debtPrincipal" type="number" step="0.01" min="0.01" /></label>
+      <label id="debtOutstandingWrap" class="hidden">Set current outstanding amount<input id="debtOutstandingEdit" type="number" step="0.01" min="0" /></label>
+      <label>Annual interest / profit / Ujrah rate (%)<input id="debtRate" type="number" step="0.01" min="0" value="4" /></label>
+      <label>Term remaining (months)<input id="debtMonths" type="number" step="1" min="1" value="60" /></label>
+      <label>Monthly payment (optional)<input id="debtPayment" type="number" step="0.01" min="0" placeholder="Leave blank to estimate" /></label>
+      <div class="hint" id="debtModeHint">Reducing-balance estimate. Actual bank schedules can differ.</div>
+      <div class="row"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="debtDetailDialog">
+    <div class="form">
+      <div class="row spread"><h3 id="debtDetailTitle">Debt</h3><button class="iconbtn tiny" id="closeDebtDetail">×</button></div>
+      <div id="debtDetailBody"></div>
+      <button class="secondary full" id="editDebtBtn">Edit debt</button>
+      <button class="primary full" id="recordDebtPaymentBtn">Record payment</button>
+      <button class="danger full" id="deleteDebtBtn">Delete debt</button>
+    </div>
+  </dialog>
+
+  <dialog id="debtPaymentDialog">
+    <form method="dialog" id="debtPaymentForm" class="form">
+      <h3>Record debt payment</h3>
+      <input type="hidden" id="debtPaymentDebtId" />
+      <label>Payment amount<input id="debtPayAmount" type="number" step="0.01" min="0.01" required /></label>
+      <label>Paid from account<select id="debtPayAccount"></select></label>
+      <label>Date<input id="debtPayDate" type="date" required /></label>
+      <div class="hint">This also creates an expense transaction, so the payment appears in your monthly report.</div>
+      <div class="row"><button value="cancel" class="secondary">Cancel</button><button value="default" class="primary">Save payment</button></div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
